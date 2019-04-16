@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io;
 use std::path::Path;
+use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -10,7 +11,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_toml<P: AsRef<Path>>(path: P) -> Result<Config, io::Error> {
-        toml::from_slice(fs::read(path)?.as_slice())?
+    pub fn from_toml<P: AsRef<Path>>(path: P) -> Self {
+        toml::from_slice(fs::read(path).unwrap().as_slice()).unwrap()
     }
 }

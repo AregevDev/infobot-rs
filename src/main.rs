@@ -26,7 +26,7 @@ impl EventHandler for Handler {
 }
 
 fn main() {
-    let config = Config::from_toml("config.toml").expect("Could not read config");
+    let config = Config::from_toml("config.toml");
 
     let mut client = Client::new(config.token.as_str(), Handler).expect(
         "Could not start client, make sure your config file is located and you token is valid",
