@@ -6,6 +6,7 @@ use serenity::{
     model::{gateway::Game, gateway::Ready, guild::Member, misc::Mentionable, user::OnlineStatus},
     Client,
 };
+use serenity::CACHE;
 
 const TOKEN: &str = "NTY3MDU3NTk0NjI4NDQwMDcw.XLXbIA.B1kC-NELIBVah_roP5w4caZQsrI";
 
@@ -68,7 +69,7 @@ command!(info(_ctx, msg) {
                     )
                     .thumbnail(avatar_url)
                     .color(0x000000)
-                    .footer(|f| f.text("Made by infobot"))
+                    .footer(|f| f.text(format!("Made by {}", msg.guild_id.unwrap().member(CACHE.read().user.id).unwrap().display_name())))
             })
         })
         .unwrap();
