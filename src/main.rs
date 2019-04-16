@@ -1,4 +1,8 @@
+mod config;
+
+use crate::config::Config;
 use chrono::NaiveDateTime;
+use serenity::model::channel::Message;
 use serenity::CACHE;
 use serenity::{
     client::{Context, EventHandler},
@@ -7,15 +11,14 @@ use serenity::{
     model::{gateway::Game, gateway::Ready, guild::Member, misc::Mentionable, user::OnlineStatus},
     Client,
 };
-
-const TOKEN: &str = "NTY3MDU3NTk0NjI4NDQwMDcw.XLXbIA.B1kC-NELIBVah_roP5w4caZQsrI";
+use std::fs::File;
 
 struct Handler;
 
 impl EventHandler for Handler {
-    fn ready(&self, _ctx: Context, bot: Ready) {
-        _ctx.shard.set_status(OnlineStatus::Online);
-        _ctx.shard.set_game(Some(Game::playing(
+    fn ready(&self, ctx: Context, bot: Ready) {
+        ctx.shard.set_status(OnlineStatus::Online);
+        ctx.shard.set_game(Some(Game::playing(
             format!("Informing in {} servers!", bot.guilds.len()).as_str(),
         )));
         println!("Bot is ready: {}#{}", bot.user.name, bot.user.discriminator);
@@ -23,10 +26,15 @@ impl EventHandler for Handler {
 }
 
 fn main() {
-    let mut client = Client::new(TOKEN, Handler).unwrap();
+    let config = Config::from_toml("config.toml").expect("Could not read config");
+
+    let mut client = Client::new(config.token.as_str(), Handler).expect(
+        "Could not start client, make sure your config file is located and you token is valid",
+    );
+
     client.with_framework(
         StandardFramework::new()
-            .configure(|c| c.prefix("~"))
+            .configure(|c| c.prefix(config.prefix.as_str()))
             .cmd("info", info),
     );
 
@@ -69,7 +77,16 @@ command!(info(_ctx, msg) {
                     )
                     .thumbnail(avatar_url)
                     .color(0x000000)
-                    .footer(|f| f.text(format!("Made by {}", msg.guild_id.unwrap().member(CACHE.read().user.id).unwrap().display_name())))
+                    .footer(|f| {
+                        f.text(format!(
+                            "Made by {}",
+                            msg.guild_id
+                                .unwrap()
+                                .member(CACHE.read().user.id)
+                                .unwrap()
+                                .display_name()
+                        ))
+                    })
             })
         })
         .unwrap();
