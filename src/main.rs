@@ -1,4 +1,5 @@
 use chrono::NaiveDateTime;
+use serenity::CACHE;
 use serenity::{
     client::{Context, EventHandler},
     command,
@@ -6,7 +7,6 @@ use serenity::{
     model::{gateway::Game, gateway::Ready, guild::Member, misc::Mentionable, user::OnlineStatus},
     Client,
 };
-use serenity::CACHE;
 
 const TOKEN: &str = "NTY3MDU3NTk0NjI4NDQwMDcw.XLXbIA.B1kC-NELIBVah_roP5w4caZQsrI";
 
