@@ -2,16 +2,14 @@ mod config;
 
 use crate::config::Config;
 use chrono::NaiveDateTime;
-use serenity::model::channel::Message;
-use serenity::CACHE;
 use serenity::{
+    CACHE,
     client::{Context, EventHandler},
     command,
     framework::StandardFramework,
     model::{gateway::Game, gateway::Ready, guild::Member, misc::Mentionable, user::OnlineStatus},
-    Client,
+    Client
 };
-use std::fs::File;
 
 struct Handler;
 

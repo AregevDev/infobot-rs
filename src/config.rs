@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io;
 use std::path::Path;
-use std::error::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
