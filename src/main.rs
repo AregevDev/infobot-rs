@@ -2,14 +2,16 @@ mod config;
 
 use crate::config::Config;
 use chrono::NaiveDateTime;
+use log::{error, info, warn, Level};
 use serenity::{
-    CACHE,
     client::{Context, EventHandler},
     command,
     framework::StandardFramework,
     model::{gateway::Game, gateway::Ready, guild::Member, misc::Mentionable, user::OnlineStatus},
-    Client
+    Client, CACHE,
 };
+use std::path;
+use std::path::Path;
 
 struct Handler;
 
@@ -19,16 +21,31 @@ impl EventHandler for Handler {
         ctx.shard.set_game(Some(Game::playing(
             format!("Informing in {} servers!", bot.guilds.len()).as_str(),
         )));
-        println!("Bot is ready: {}#{}", bot.user.name, bot.user.discriminator);
+        info!("Bot is ready: {}#{}", bot.user.name, bot.user.discriminator);
     }
 }
 
 fn main() {
-    let config = Config::from_toml("config.toml");
+    simple_logger::init_with_level(Level::Info).unwrap();
+    info!("Checking for configuration file");
+    let config_path = Path::new("config.toml");
+    if config_path.exists() {
+        info!("Configuration file found: {}", config_path.display());
+    } else {
+        warn!("Configuration not found, make sure the file is placed in the same directory as the binary");
+    }
 
-    let mut client = Client::new(config.token.as_str(), Handler).expect(
-        "Could not start client, make sure your config file is located and you token is valid",
-    );
+    let config = Config::from_toml(config_path);
+    let mut client = match Client::new(config.token.as_str(), Handler) {
+        Ok(c) => c,
+        Err(why) => {
+            error!(
+                "Could not initialize client, make sure you token is correct: {:?}",
+                why
+            );
+            panic!(why);
+        }
+    };
 
     client.with_framework(
         StandardFramework::new()
@@ -37,7 +54,7 @@ fn main() {
     );
 
     if let Err(why) = client.start() {
-        println!("An error occurred while running the client: {:?}", why);
+        error!("An error occurred while running the client: {:?}", why);
     }
 }
 
